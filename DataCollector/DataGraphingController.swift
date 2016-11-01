@@ -37,6 +37,7 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
         
         chartView.leftAxis.granularityEnabled = true
         chartView.leftAxis.granularity = 1
+        chartView.leftAxis.axisMinimum = 0
         
         chartView.xAxis.axisMinimum = 0
         chartView.xAxis.granularityEnabled = true
@@ -82,7 +83,6 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
     
     @IBAction func saveButtonClicked(_ sender: UIBarButtonItem) {
         chartView.highlightValue(x: 0, dataSetIndex: -1, callDelegate: false)
-        UIImageWriteToSavedPhotosAlbum(chartView.getChartImage(transparent: false)!, nil, nil, nil)
         generateCSV()
         sendMail()
     }
@@ -163,6 +163,7 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
             do {
                 let fileData = try Data.init(contentsOf: csvPath!.absoluteURL)
                 mailComposer.addAttachmentData(fileData as Data, mimeType: "text/csv", fileName: "\(student!.value(forKey: "firstName").unsafelyUnwrapped) \(student!.value(forKey: "lastName").unsafelyUnwrapped) Data")
+                mailComposer.addAttachmentData(UIImagePNGRepresentation(chartView.getChartImage(transparent: false)!)!, mimeType: "image/png", fileName: "\(student!.value(forKey: "firstName").unsafelyUnwrapped) \(student!.value(forKey: "lastName").unsafelyUnwrapped) Chart")
             } catch {
                 print("cannot retrieve csv file")
             }
