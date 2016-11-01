@@ -68,7 +68,7 @@ class StudentSelectionController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-    return true
+        return true
     }
     
     func studentObjectatIndexPath(_ path: IndexPath)-> NSManagedObject? {

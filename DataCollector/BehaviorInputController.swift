@@ -17,6 +17,12 @@ class BehaviorInputController: UIViewController {
     var student: NSManagedObject?
     var managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let seg = segue.destination as? DataGraphingController {
+            seg.student = student
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         let firstName = student!.value(forKey: "firstName") as! String
         let lastName = student!.value(forKey: "lastName") as! String
@@ -54,17 +60,8 @@ class BehaviorInputController: UIViewController {
             }
         }
         
-        print("a button was clicked at time: " + Date(timeIntervalSince1970: timestamp).toString())
-        print(timestamps.description)
-        print()
-    }
-}
-
-extension Date {
-    func toString() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .medium
-        return dateFormatter.string(from: self)
+        //print("a button was clicked at time: " + Date(timeIntervalSince1970: timestamp).toString())
+        //print(timestamps.description)
+        //print()
     }
 }

@@ -16,15 +16,19 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var lastNameField: UITextField!
     @IBOutlet weak var firstBehaviorField: UITextField!
     @IBOutlet weak var secondBehaviorField: UITextField!
+    @IBOutlet weak var fakeDataStepper: UIStepper!
+    @IBOutlet weak var fakeDataLabel: UILabel!
     var managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        fakeDataStepper.value = 0
+        fakeDataLabel.text = "Months to generate: " + String(format: "%g", fakeDataStepper.value)
         registerForKeyboardNotifications()
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        addStudent()
+        addStudent(monthsToSample: Int(fakeDataStepper.value))
         navigationController!.popViewController(animated: true)
         return false
     }
@@ -53,14 +57,24 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    func addStudent() {
+    @IBAction func stepperPressed(_ sender: UIStepper) {
+        fakeDataLabel.text = "Months to generate: " + String(format: "%g", fakeDataStepper.value)
+    }
+    
+    func addStudent(monthsToSample: Int) {
         let transaction = NSEntityDescription.insertNewObject(forEntityName: "Student", into: managedObjectContext)
         transaction.setValue(self.firstNameField.text, forKey: "firstName")
         transaction.setValue(self.lastNameField.text, forKey: "lastName")
         transaction.setValue(self.firstBehaviorField.text, forKey: "firstBehavior")
         transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
-        transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
-        transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
+        
+        if monthsToSample > 0 {
+            transaction.setValue(generateFakeData(count: 250, months: monthsToSample), forKey: "firstBehaviorFrequency")
+            transaction.setValue(generateFakeData(count: 250, months: monthsToSample), forKey: "secondBehaviorFrequency")
+        } else {
+            transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
+            transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
+        }
         
         if managedObjectContext.hasChanges {
             do {
@@ -99,7 +113,7 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
             frame = secondBehaviorField.frame
         }
         
-         self.scrollView.scrollRectToVisible(frame, animated: true)
+        self.scrollView.scrollRectToVisible(frame, animated: true)
     }
     
     func keyboardWillBeHidden(notification: NSNotification) {
@@ -109,6 +123,15 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         self.scrollView.contentInset = contentInsets
         self.scrollView.scrollIndicatorInsets = contentInsets
         self.scrollView.isScrollEnabled = false
+    }
+    
+    func generateFakeData(count: Int, months: Int) -> [Double] {
+        let oneMonth: UInt32 = 2592000
+        var data = [Double]()
+        for _ in 1...count {
+            data.append(Date().timeIntervalSince1970 - Double(arc4random_uniform(oneMonth * UInt32(months))))
+        }
+        return data.sorted(by: <)
     }
     
 }
