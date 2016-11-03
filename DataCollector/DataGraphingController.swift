@@ -39,10 +39,11 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
         chartView.leftAxis.granularity = 1
         chartView.leftAxis.axisMinimum = 0
         
-        chartView.xAxis.axisMinimum = 0
         chartView.xAxis.granularityEnabled = true
-        chartView.xAxis.granularity = 1
         chartView.xAxis.centerAxisLabelsEnabled = true
+        chartView.xAxis.granularity = 1
+        chartView.xAxis.axisMinimum = 0
+        chartView.xAxis.avoidFirstLastClippingEnabled = true
         
         chartView.rightAxis.enabled = false
         
@@ -55,18 +56,13 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
             var firstBehaviorEntries = [BarChartDataEntry]()
             var secondBehaviorEntries = [BarChartDataEntry]()
             
-            
-            
-            for index in 0...dataSet.count-1 {
-                firstBehaviorEntries.append(BarChartDataEntry(x: Double(index), y: Double(dataSet[index].firstBehaviorCount), data: dataSet[index].date as AnyObject?))
-                secondBehaviorEntries.append(BarChartDataEntry(x: Double(index), y: Double(dataSet[index].secondBehaviorCount), data: dataSet[index].date as AnyObject?))
+            for (index, entry) in dataSet.enumerated() {
+                firstBehaviorEntries.append(BarChartDataEntry(x: Double(index), y: Double(entry.firstBehaviorCount), data: entry.date as AnyObject?))
+                secondBehaviorEntries.append(BarChartDataEntry(x: Double(index), y: Double(entry.secondBehaviorCount), data: entry.date as AnyObject?))
             }
-            
-            
             
             let firstDataSet = BarChartDataSet(values: firstBehaviorEntries, label: student!.value(forKey: "firstBehavior") as? String)
             let secondDataSet = BarChartDataSet(values: secondBehaviorEntries, label: student!.value(forKey: "secondBehavior") as? String)
-            
             
             firstDataSet.colors = [UIColor.init(red: 255/255, green: 105/255, blue: 97/255, alpha: 0.75)]
             secondDataSet.colors = [UIColor.init(red: 119/255, green: 221/255, blue: 119/255, alpha: 0.75)]
@@ -79,6 +75,7 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
             chartView.noDataTextColor = UIColor.black
             chartView.noDataText = "Not enough data to graph"
         }
+        chartView.xAxis.axisMaximum = Double(dataSet.count)
     }
     
     @IBAction func saveButtonClicked(_ sender: UIBarButtonItem) {
@@ -88,9 +85,6 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
     }
     
     func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
-        //        let startDate = Date(timeIntervalSince1970: offsetTimestamp)
-        //        let offsetDays = floor(entry.x)
-        //        navigationBar.title = Calendar.current.date(byAdding: .day, value: Int(offsetDays), to: startDate)?.toString()
         navigationBar.title = entry.data as? String
     }
     
@@ -99,11 +93,9 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
     }
     
     func generateCSV() {
-        
         let dataset = timestampsToDataset(firstSet: student!.value(forKey: "firstBehaviorFrequency") as! [TimeInterval], secondSet: student!.value(forKey: "secondBehaviorFrequency") as! [TimeInterval], modifier: secondsInADay)
         
         if csvPath != nil {
-            
             guard let stream = OutputStream(url: csvPath!, append: false) else {
                 print("unable to open file")
                 return
@@ -118,7 +110,6 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
                     break
                 }
             }
-            
             stream.close()
         }
     }
@@ -156,19 +147,18 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
             let mailComposer = MFMailComposeViewController()
             mailComposer.mailComposeDelegate = self
             
-            //Set the subject and message of the email
             mailComposer.setSubject("Data for \(student!.value(forKey: "firstName").unsafelyUnwrapped) \(student!.value(forKey: "lastName").unsafelyUnwrapped)")
-            //mailComposer.setMessageBody("", isHTML: false)
             
             do {
-                let fileData = try Data.init(contentsOf: csvPath!.absoluteURL)
-                mailComposer.addAttachmentData(fileData as Data, mimeType: "text/csv", fileName: "\(student!.value(forKey: "firstName").unsafelyUnwrapped) \(student!.value(forKey: "lastName").unsafelyUnwrapped) Data")
+                mailComposer.addAttachmentData(try Data.init(contentsOf: csvPath!.absoluteURL), mimeType: "text/csv", fileName: "\(student!.value(forKey: "firstName").unsafelyUnwrapped) \(student!.value(forKey: "lastName").unsafelyUnwrapped) Data")
                 mailComposer.addAttachmentData(UIImagePNGRepresentation(chartView.getChartImage(transparent: false)!)!, mimeType: "image/png", fileName: "\(student!.value(forKey: "firstName").unsafelyUnwrapped) \(student!.value(forKey: "lastName").unsafelyUnwrapped) Chart")
             } catch {
-                print("cannot retrieve csv file")
+                print("Failed trying to add attachments")
             }
             
             self.present(mailComposer, animated: true, completion: nil)
+        } else {
+            print("Cannot send mail")
         }
     }
     
@@ -187,10 +177,10 @@ func timestampsToDataset(firstSet: [TimeInterval], secondSet: [TimeInterval], mo
         let startDate = Date(timeIntervalSince1970: Double(firstDay)*modifier)
         
         for dayCount in firstDay...lastDay {
-            let date = Calendar.current.date(byAdding: .day, value: dayCount - firstDay, to: startDate)?.toString()
+            let date = Calendar.current.date(byAdding: .day, value: (dayCount - firstDay) + 1, to: startDate)!.toString()
             let firstBehaviorCount = firstSet.filter({Int(floor($0/modifier)) == dayCount}).count
             let secondBehaviorCount = secondSet.filter({Int(floor($0/modifier)) == dayCount}).count
-            daysArray.append((date!, firstBehaviorCount, secondBehaviorCount))
+            daysArray.append((date, firstBehaviorCount, secondBehaviorCount))
         }
     }
     

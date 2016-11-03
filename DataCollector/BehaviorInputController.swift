@@ -59,9 +59,5 @@ class BehaviorInputController: UIViewController {
                 print("error")
             }
         }
-        
-        //print("a button was clicked at time: " + Date(timeIntervalSince1970: timestamp).toString())
-        //print(timestamps.description)
-        //print()
     }
 }
