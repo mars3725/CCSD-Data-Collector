@@ -3,7 +3,7 @@
 //  DataCollector
 //
 //  Created by Matthew Mohandiss on 10/23/16.
-//  Copyright © 2016 Matthew Mohandiss. All rights reserved.
+//  Copyright © 2016 Matthew Mohandiss. All rights reserved.ReyHittD
 //
 
 import UIKit
