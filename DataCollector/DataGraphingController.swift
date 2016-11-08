@@ -74,6 +74,7 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
         } else {
             chartView.noDataTextColor = UIColor.black
             chartView.noDataText = "Not enough data to graph"
+            navigationBar.rightBarButtonItem?.isEnabled = false
         }
         chartView.xAxis.axisMaximum = Double(dataSet.count)
     }
@@ -89,7 +90,7 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
     }
     
     func chartValueNothingSelected(_ chartView: ChartViewBase) {
-        navigationBar.title = nil
+        navigationBar.title = "Graph"
     }
     
     func generateCSV() {
@@ -170,9 +171,20 @@ class DataGraphingController: UIViewController, ChartViewDelegate, MFMailCompose
 func timestampsToDataset(firstSet: [TimeInterval], secondSet: [TimeInterval], modifier: Double) -> [(date: String, firstBehaviorCount: Int, secondBehaviorCount: Int)] {
     var daysArray = [(date: String, firstBehaviorCount: Int, secondBehaviorCount: Int)]()
     
-    if !firstSet.isEmpty && !secondSet.isEmpty {
-        let firstDay = Int(floor(min(firstSet.first!, secondSet.first!)/modifier))
-        let lastDay = Int(floor(max(firstSet.last!, secondSet.last!)/modifier))
+    if !firstSet.isEmpty || !secondSet.isEmpty {
+        var firstDay = Int()
+        var lastDay = Int()
+        
+        if firstSet.isEmpty {
+            firstDay = Int(secondSet.first!/modifier)
+            lastDay = Int(secondSet.last!/modifier)
+        } else if secondSet.isEmpty {
+            firstDay = Int(firstSet.first!/modifier)
+            lastDay = Int(firstSet.last!/modifier)
+        } else {
+            firstDay = Int(floor(min(firstSet.first!, secondSet.first!)/modifier))
+            lastDay = Int(floor(max(firstSet.last!, secondSet.last!)/modifier))
+        }
         
         let startDate = Date(timeIntervalSince1970: Double(firstDay)*modifier)
         

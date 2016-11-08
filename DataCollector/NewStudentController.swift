@@ -16,19 +16,15 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var lastNameField: UITextField!
     @IBOutlet weak var firstBehaviorField: UITextField!
     @IBOutlet weak var secondBehaviorField: UITextField!
-    @IBOutlet weak var fakeDataStepper: UIStepper!
-    @IBOutlet weak var fakeDataLabel: UILabel!
     var managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fakeDataStepper.value = 0
-        fakeDataLabel.text = "Months to generate: " + String(format: "%g", fakeDataStepper.value)
         registerForKeyboardNotifications()
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        addStudent(monthsToSample: Int(fakeDataStepper.value))
+        addStudent()
         navigationController!.popViewController(animated: true)
         return false
     }
@@ -57,20 +53,16 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    @IBAction func stepperPressed(_ sender: UIStepper) {
-        fakeDataLabel.text = "Months to generate: " + String(format: "%g", fakeDataStepper.value)
-    }
-    
-    func addStudent(monthsToSample: Int) {
+    func addStudent() {
         let transaction = NSEntityDescription.insertNewObject(forEntityName: "Student", into: managedObjectContext)
         transaction.setValue(self.firstNameField.text, forKey: "firstName")
         transaction.setValue(self.lastNameField.text, forKey: "lastName")
         transaction.setValue(self.firstBehaviorField.text, forKey: "firstBehavior")
         transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
         
-        if monthsToSample > 0 {
-            transaction.setValue(generateFakeData(count: 250, months: monthsToSample), forKey: "firstBehaviorFrequency")
-            transaction.setValue(generateFakeData(count: 250, months: monthsToSample), forKey: "secondBehaviorFrequency")
+        if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
+            transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "firstBehaviorFrequency")
+            transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
         } else {
             transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
             transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")

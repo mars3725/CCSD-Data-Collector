@@ -29,6 +29,12 @@ class BehaviorInputController: UIViewController {
         navigationBar.title = String(firstName.characters.first!) + " " + lastName
         firstBehavior.setTitle(student!.value(forKey: "firstBehavior") as! String?, for: UIControlState.normal)
         secondBehavior.setTitle(student!.value(forKey: "secondBehavior") as! String?, for: UIControlState.normal)
+        
+        if UIApplication.shared.statusBarOrientation.isPortrait {
+            stackView.axis = UILayoutConstraintAxis.vertical
+        } else {
+            stackView.axis = UILayoutConstraintAxis.horizontal
+        }
     }
     
     override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {

@@ -41,7 +41,7 @@ class LoginController: UIViewController, UITextFieldDelegate {
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if !usernameField.isFirstResponder && !passwordField.isFirstResponder {
-            if usernameField.text == username && passwordField.text == password {
+            if authenticate() {
                 return true
             } else {
                 usernameField.text = nil
@@ -55,6 +55,17 @@ class LoginController: UIViewController, UITextFieldDelegate {
             }
         }
         return false
+    }
+    
+    func authenticate() -> Bool {
+        let usernameText = usernameField.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let passwordText = passwordField.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        
+        if usernameText?.lowercased() == username && passwordText?.lowercased() == password {
+            return true
+        } else {
+            return false
+        }
     }
     
     func registerForKeyboardNotifications(){
