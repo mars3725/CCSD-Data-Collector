@@ -43,13 +43,6 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
             textField.resignFirstResponder()
             self.scrollView.scrollRectToVisible(firstNameField.frame, animated: true)
         }
-        
-        if !firstNameField.text!.isEmpty && !lastNameField.text!.isEmpty && !firstBehaviorField.text!.isEmpty && !secondBehaviorField.text!.isEmpty {
-            doneButton.isEnabled = true
-        } else {
-            doneButton.isEnabled = false
-        }
-        
         return true
     }
     
@@ -57,15 +50,23 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         let transaction = NSEntityDescription.insertNewObject(forEntityName: "Student", into: managedObjectContext)
         transaction.setValue(self.firstNameField.text, forKey: "firstName")
         transaction.setValue(self.lastNameField.text, forKey: "lastName")
-        transaction.setValue(self.firstBehaviorField.text, forKey: "firstBehavior")
-        transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
         
-        if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
-            transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "firstBehaviorFrequency")
-            transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
-        } else {
-            transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
-            transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
+        if !firstBehaviorField.text!.isEmpty {
+            transaction.setValue(self.firstBehaviorField.text, forKey: "firstBehavior")
+            if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
+                transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "firstBehaviorFrequency")
+            } else {
+                transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
+            }
+        }
+        
+        if !secondBehaviorField.text!.isEmpty {
+            transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
+            if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
+                    transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
+            } else {
+                transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
+            }
         }
         
         if managedObjectContext.hasChanges {
@@ -78,7 +79,6 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
     }
     
     func registerForKeyboardNotifications() {
-        //Adding notifies on keyboard appearing
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
@@ -106,6 +106,12 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         }
         
         self.scrollView.scrollRectToVisible(frame, animated: true)
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if !firstNameField.text!.isEmpty && !lastNameField.text!.isEmpty && (!firstBehaviorField.text!.isEmpty || !secondBehaviorField.text!.isEmpty) {
+            doneButton.isEnabled = true
+        }
     }
     
     func keyboardWillBeHidden(notification: NSNotification) {

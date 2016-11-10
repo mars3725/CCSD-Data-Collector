@@ -27,8 +27,20 @@ class BehaviorInputController: UIViewController {
         let firstName = student!.value(forKey: "firstName") as! String
         let lastName = student!.value(forKey: "lastName") as! String
         navigationBar.title = String(firstName.characters.first!) + " " + lastName
-        firstBehavior.setTitle(student!.value(forKey: "firstBehavior") as! String?, for: UIControlState.normal)
-        secondBehavior.setTitle(student!.value(forKey: "secondBehavior") as! String?, for: UIControlState.normal)
+        
+        if let firstBehaviorText = student!.value(forKey: "firstBehavior") as! String? {
+            firstBehavior.setTitle(firstBehaviorText, for: UIControlState.normal)
+        } else {
+            stackView.removeArrangedSubview(firstBehavior)
+            firstBehavior.isHidden = true
+        }
+        
+        if let secondBehaviorText = student!.value(forKey: "secondBehavior") as! String? {
+            secondBehavior.setTitle(secondBehaviorText, for: UIControlState.normal)
+        } else {
+            stackView.removeArrangedSubview(secondBehavior)
+            secondBehavior.isHidden = true
+        }
         
         if UIApplication.shared.statusBarOrientation.isPortrait {
             stackView.axis = UILayoutConstraintAxis.vertical
