@@ -216,18 +216,24 @@ func timestampsToDataset(firstSet: [TimeInterval]?, secondSet: [TimeInterval]?, 
     
     if firstSet != nil && secondSet != nil {
         if !firstSet!.isEmpty && !secondSet!.isEmpty {
-        firstDay = Int(floor(min(firstSet!.first!, secondSet!.first!)/modifier))
-        lastDay = Int(floor(max(firstSet!.last!, secondSet!.last!)/modifier))
+            firstDay = Int(floor(min(firstSet!.first!, secondSet!.first!)/modifier))
+            lastDay = Int(floor(max(firstSet!.last!, secondSet!.last!)/modifier))
+        } else if !firstSet!.isEmpty {
+            firstDay = Int(firstSet!.first!/modifier)
+            lastDay = Int(firstSet!.last!/modifier)
+        } else if !secondSet!.isEmpty {
+            firstDay = Int(secondSet!.first!/modifier)
+            lastDay = Int(secondSet!.last!/modifier)
         }
     } else if firstSet != nil {
         if !firstSet!.isEmpty {
-        firstDay = Int(firstSet!.first!/modifier)
-        lastDay = Int(firstSet!.last!/modifier)
+            firstDay = Int(firstSet!.first!/modifier)
+            lastDay = Int(firstSet!.last!/modifier)
         }
     } else if secondSet != nil {
         if !secondSet!.isEmpty {
-        firstDay = Int(secondSet!.first!/modifier)
-        lastDay = Int(secondSet!.last!/modifier)
+            firstDay = Int(secondSet!.first!/modifier)
+            lastDay = Int(secondSet!.last!/modifier)
         }
     }
     
@@ -235,10 +241,10 @@ func timestampsToDataset(firstSet: [TimeInterval]?, secondSet: [TimeInterval]?, 
         
         let startDate = Date(timeIntervalSince1970: Double(firstDay!)*modifier)
         if firstSet != nil {
-        firstDataSet = [(date: String, count: Int)]()
+            firstDataSet = [(date: String, count: Int)]()
         }
         if secondSet != nil {
-        secondDataSet = [(date: String, count: Int)]()
+            secondDataSet = [(date: String, count: Int)]()
         }
         
         for dayCount in firstDay!...lastDay! {

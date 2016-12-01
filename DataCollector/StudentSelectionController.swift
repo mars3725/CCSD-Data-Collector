@@ -15,17 +15,7 @@ class StudentSelectionController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(rightSwipe(_:)))
-        rightSwipe.direction = .right
-        self.view.addGestureRecognizer(rightSwipe)
-        
-        let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(leftSwipe(_:)))
-        leftSwipe.direction = .left
-        self.view.addGestureRecognizer(leftSwipe)
     }
-    
-    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -48,14 +38,6 @@ class StudentSelectionController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return students.count
-    }
-    
-    func rightSwipe(_ gestureRecognizer: UITapGestureRecognizer) {
-        setEditing(true, animated: true)
-    }
-    
-    func leftSwipe(_ gestureRecognizer: UITapGestureRecognizer) {
-        setEditing(false, animated: true)
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -84,12 +66,20 @@ class StudentSelectionController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == UITableViewCellEditingStyle.delete) {
-            tableView.beginUpdates()
             if let student = studentObjectatIndexPath(indexPath) {
+                tableView.beginUpdates()
                 managedObjectContext.delete(student)
                 students.remove(at: students.index(of: student)!)
                 tableView.deleteRows(at: [indexPath], with: .automatic)
                 tableView.endUpdates()
+            }
+            
+            if managedObjectContext.hasChanges {
+                do {
+                    try managedObjectContext.save()
+                } catch {
+                    print("error")
+                }
             }
         }
     }

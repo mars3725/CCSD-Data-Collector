@@ -47,7 +47,7 @@ class LoginController: UIViewController, UITextFieldDelegate {
                 usernameField.text = nil
                 passwordField.text = nil
                 errorMessage.isHidden = false
-                let timer = Timer(timeInterval: 2, repeats: false, block: {timer in
+                let timer = Timer(timeInterval: 2, repeats: false, block: { timer in
                     self.errorMessage.isHidden = true
                 })
                 RunLoop.current.add(timer, forMode: RunLoopMode.defaultRunLoopMode)

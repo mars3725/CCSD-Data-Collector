@@ -63,7 +63,7 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         if !secondBehaviorField.text!.isEmpty {
             transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
             if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
-                    transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
+                transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
             } else {
                 transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
             }
@@ -108,10 +108,19 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         self.scrollView.scrollRectToVisible(frame, animated: true)
     }
     
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        if !firstNameField.text!.isEmpty && !lastNameField.text!.isEmpty && (!firstBehaviorField.text!.isEmpty || !secondBehaviorField.text!.isEmpty) {
-            doneButton.isEnabled = true
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if !firstNameField.text!.isEmpty && !lastNameField.text!.isEmpty {
+            if textField.isEqual(firstBehaviorField) || textField.isEqual(secondBehaviorField) {
+                if string.isEmpty && textField.text!.characters.count == 1 {
+                    doneButton.isEnabled = false
+                }
+            }
+            
+            if !string.isEmpty && (!firstBehaviorField.text!.isEmpty || !secondBehaviorField.text!.isEmpty) {
+                doneButton.isEnabled = true
+            }
         }
+        return true
     }
     
     func keyboardWillBeHidden(notification: NSNotification) {
