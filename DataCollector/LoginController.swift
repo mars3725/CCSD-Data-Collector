@@ -9,98 +9,55 @@
 import UIKit
 
 class LoginController: UIViewController, UITextFieldDelegate {
-    let username = "ccsd"
-    let password = "password"
+    var pin = 0
     
     @IBOutlet weak var errorMessage: UILabel!
-    @IBOutlet weak var usernameField: UITextField!
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var passwordField: UITextField!
+    @IBOutlet weak var pinField: UITextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerForKeyboardNotifications()
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == usernameField {
-            passwordField.becomeFirstResponder()
-            
-        } else if textField == passwordField {
-            passwordField.resignFirstResponder()
-        }
-        
-        return true
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        pin = UserDefaults.standard.integer(forKey: "pin")
         super.viewWillAppear(animated)
-        usernameField.text = nil
-        passwordField.text = nil
+        pinField.text = nil
+        
+        if pin == 0 {
+            pinField.placeholder = "Create PIN"
+        } else {
+            pinField.placeholder = "Enter PIN"
+        }
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if !usernameField.isFirstResponder && !passwordField.isFirstResponder {
-            if authenticate() {
+        
+        if let potentialpassword = Int(pinField.text!) {
+            if pin == 0 {
+                UserDefaults.standard.set(potentialpassword, forKey: "pin")
+                UserDefaults.standard.synchronize()
                 return true
-            } else {
-                usernameField.text = nil
-                passwordField.text = nil
-                errorMessage.isHidden = false
-                let timer = Timer(timeInterval: 2, repeats: false, block: { timer in
-                    self.errorMessage.isHidden = true
-                })
-                RunLoop.current.add(timer, forMode: RunLoopMode.defaultRunLoopMode)
-                return false
+            } else if potentialpassword == pin {
+                return true
             }
         }
+        
+        pinField.text = nil
+        errorMessage.isHidden = false
+        let timer = Timer(timeInterval: 2, repeats: false, block: { timer in
+            self.errorMessage.isHidden = true
+        })
+        RunLoop.current.add(timer, forMode: RunLoopMode.defaultRunLoopMode)
         return false
     }
     
-    func authenticate() -> Bool {
-        let usernameText = usernameField.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        let passwordText = passwordField.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+            if string.isEmpty || textField.text!.characters.count < 3 {
+                return true
+            } else if textField.text!.characters.count == 3 {
+                textField.resignFirstResponder()
+            }
         
-        if usernameText?.lowercased() == username && passwordText?.lowercased() == password {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    func registerForKeyboardNotifications(){
-        //Adding notifies on keyboard appearing
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-    }
-    
-    func keyboardWasShown(notification: NSNotification) {
-        self.scrollView.isScrollEnabled = true
-        var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
-        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize!.height + 50, 0.0)
-        
-        self.scrollView.contentInset = contentInsets
-        self.scrollView.scrollIndicatorInsets = contentInsets
-        
-        var aRect : CGRect = self.view.frame
-        aRect.size.height -= keyboardSize!.height
-        var frame = CGRect()
-        if self.usernameField.isFirstResponder {
-            frame = usernameField.frame
-        } else if self.passwordField.isFirstResponder {
-            frame = passwordField.frame
-        }
-        
-        self.scrollView.scrollRectToVisible(frame, animated: true)
-    }
-    
-    func keyboardWillBeHidden(notification: NSNotification) {
-        var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
-        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -keyboardSize!.height, 0.0)
-        self.scrollView.contentInset = contentInsets
-        self.scrollView.scrollIndicatorInsets = contentInsets
-        self.scrollView.isScrollEnabled = false
+        return false
     }
 }

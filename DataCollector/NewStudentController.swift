@@ -11,17 +11,33 @@ import CoreData
 
 class NewStudentController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var doneButton: UIBarButtonItem!
-    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var firstNameField: UITextField!
     @IBOutlet weak var lastNameField: UITextField!
-    @IBOutlet weak var firstBehaviorField: UITextField!
-    @IBOutlet weak var secondBehaviorField: UITextField!
+    @IBOutlet weak var behaviorsTable: UITableView!
+    @IBOutlet weak var scheduleTable: UITableView!
+    
+    
     var managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerForKeyboardNotifications()
     }
+    
+    @IBAction func addBehavior(_ sender: UIButton) {
+        let newCell = behaviorsTable.dequeueReusableCell(withIdentifier: "behavior", for: IndexPath(item: 0, section: 0))
+        newCell.textLabel!.text = "new behavior"
+        //newCell.imageView!.image = createColorImage(color: UIColor(red: CGFloat(drand48()), green: CGFloat(drand48()), blue: CGFloat(drand48()), alpha: 1))
+        //(newCell.textLabel!.viewWithTag(1) as! UITextField).becomeFirstResponder()
+    }
+    
+    
+    @IBAction func addPeriod(_ sender: Any) {
+//        let newCell = behaviorsTable.dequeueReusableCell(withIdentifier: "period", for: IndexPath(item: 0, section: 0))
+//        newCell.textLabel!.text = "new period"
+        //newCell.imageView!.image = createColorImage(color: UIColor(red: CGFloat(drand48()), green: CGFloat(drand48()), blue: CGFloat(drand48()), alpha: 1))
+        //(newCell.textLabel!.viewWithTag(1) as! UITextField).becomeFirstResponder()
+    }
+    
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         addStudent()
@@ -32,104 +48,51 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == firstNameField && lastNameField.text!.isEmpty {
             lastNameField.becomeFirstResponder()
-        } else if textField == lastNameField && firstBehaviorField.text!.isEmpty {
-            firstBehaviorField.becomeFirstResponder()
-        } else if textField == firstBehaviorField && secondBehaviorField.text!.isEmpty {
-            secondBehaviorField.becomeFirstResponder()
-        } else if textField == secondBehaviorField {
-            secondBehaviorField.resignFirstResponder()
-            self.scrollView.scrollRectToVisible(firstNameField.frame, animated: true)
-        } else {
+        } else if textField == lastNameField {
             textField.resignFirstResponder()
-            self.scrollView.scrollRectToVisible(firstNameField.frame, animated: true)
         }
         return true
     }
     
     func addStudent() {
-        let transaction = NSEntityDescription.insertNewObject(forEntityName: "Student", into: managedObjectContext)
-        transaction.setValue(self.firstNameField.text, forKey: "firstName")
-        transaction.setValue(self.lastNameField.text, forKey: "lastName")
-        
-        if !firstBehaviorField.text!.isEmpty {
-            transaction.setValue(self.firstBehaviorField.text, forKey: "firstBehavior")
-            if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
-                transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "firstBehaviorFrequency")
-            } else {
-                transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
-            }
-        }
-        
-        if !secondBehaviorField.text!.isEmpty {
-            transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
-            if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
-                transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
-            } else {
-                transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
-            }
-        }
-        
-        if managedObjectContext.hasChanges {
-            do {
-                try managedObjectContext.save()
-            } catch {
-                print("error")
-            }
-        }
-    }
-    
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-    }
-    
-    func keyboardWasShown(notification: NSNotification) {
-        self.scrollView.isScrollEnabled = true
-        var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
-        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize!.height + 50, 0.0)
-        
-        self.scrollView.contentInset = contentInsets
-        self.scrollView.scrollIndicatorInsets = contentInsets
-        
-        var aRect : CGRect = self.view.frame
-        aRect.size.height -= keyboardSize!.height
-        var frame = CGRect()
-        if self.firstNameField.isFirstResponder {
-            frame = firstNameField.frame
-        } else if self.lastNameField.isFirstResponder {
-            frame = lastNameField.frame
-        } else if self.firstBehaviorField.isFirstResponder {
-            frame = firstBehaviorField.frame
-        } else if self.secondBehaviorField.isFirstResponder {
-            frame = secondBehaviorField.frame
-        }
-        
-        self.scrollView.scrollRectToVisible(frame, animated: true)
+//        let transaction = NSEntityDescription.insertNewObject(forEntityName: "Student", into: managedObjectContext)
+//        transaction.setValue(self.firstNameField.text, forKey: "firstName")
+//        transaction.setValue(self.lastNameField.text, forKey: "lastName")
+//        
+//        if !firstBehaviorField.text!.isEmpty {
+//            transaction.setValue(self.firstBehaviorField.text, forKey: "firstBehavior")
+//            if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
+//                transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "firstBehaviorFrequency")
+//            } else {
+//                transaction.setValue([TimeInterval](), forKey: "firstBehaviorFrequency")
+//            }
+//        }
+//        
+//        if !secondBehaviorField.text!.isEmpty {
+//            transaction.setValue(self.secondBehaviorField.text, forKey: "secondBehavior")
+//            if self.firstNameField.text == "Test" && self.lastNameField.text == "Student" {
+//                transaction.setValue(generateFakeData(count: 250, months: 3), forKey: "secondBehaviorFrequency")
+//            } else {
+//                transaction.setValue([TimeInterval](), forKey: "secondBehaviorFrequency")
+//            }
+//        }
+//        
+//        if managedObjectContext.hasChanges {
+//            do {
+//                try managedObjectContext.save()
+//            } catch {
+//                print("error")
+//            }
+//        }
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if !firstNameField.text!.isEmpty && !lastNameField.text!.isEmpty {
-            if textField.isEqual(firstBehaviorField) || textField.isEqual(secondBehaviorField) {
-                if string.isEmpty && textField.text!.characters.count == 1 {
-                    doneButton.isEnabled = false
-                }
-            }
-            
-            if !string.isEmpty && (!firstBehaviorField.text!.isEmpty || !secondBehaviorField.text!.isEmpty) {
-                doneButton.isEnabled = true
-            }
+        if !firstNameField.text!.isEmpty && !lastNameField.text!.isEmpty && behaviorsTable.numberOfRows(inSection: 0) != 0 && scheduleTable.numberOfRows(inSection: 0) != 0 {
+            doneButton.isEnabled = true
+        } else {
+            doneButton.isEnabled = false
         }
         return true
-    }
-    
-    func keyboardWillBeHidden(notification: NSNotification) {
-        var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
-        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -keyboardSize!.height, 0.0)
-        self.scrollView.contentInset = contentInsets
-        self.scrollView.scrollIndicatorInsets = contentInsets
-        self.scrollView.isScrollEnabled = false
     }
     
     func generateFakeData(count: Int, months: Int) -> [Double] {
@@ -140,6 +103,25 @@ class NewStudentController: UIViewController, UITextFieldDelegate {
         }
         return data.sorted(by: <)
     }
+    
+    func createColorImage(color: UIColor) -> UIImage
+    {
+        let rect = CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 10, height: 10))
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0)
+        color.setFill()
+        UIRectFill(rect)
+        let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return image
+    }
+    
+}
+
+class BehaviorCell: UITableViewCell {
+    
+}
+
+class PeriodCell: UITableViewCell {
     
 }
 
